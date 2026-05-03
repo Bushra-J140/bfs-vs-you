@@ -149,12 +149,12 @@ export default function MazeGame() {
       animTimeouts.current.push(t);
     });
 
-    const pathStart = visited.length * 25 + 200;
+    const pathStart = visited.length * 25 + 250;
     path.forEach((pos, i) => {
       const t = setTimeout(() => {
         setShortestPath((prev) => new Set(prev).add(`${pos.row},${pos.col}`));
         if (i === path.length - 1) setBfsRunning(false);
-      }, pathStart + i * 50);
+      }, pathStart + i * 75);
       animTimeouts.current.push(t);
     });
   }
