@@ -84,6 +84,12 @@
     box-shadow: 0 0 12px 2px currentColor;
   }
 
+  .bfs-path-glow {
+    position: relative;
+    box-shadow: 0 0 0 1px hsl(var(--background)), 0 0 14px 3px hsl(var(--maze-shortest) / 0.85);
+    z-index: 1;
+  }
+
   @keyframes pulse-glow {
     0%, 100% { box-shadow: 0 0 8px 2px hsl(var(--maze-player) / 0.6); }
     50% { box-shadow: 0 0 20px 6px hsl(var(--maze-player) / 0.9); }

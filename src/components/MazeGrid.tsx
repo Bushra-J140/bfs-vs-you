@@ -41,7 +41,7 @@ const cellColors: Record<CellState, string> = {
   visited: "bg-maze-visited",
   dfs: "bg-maze-dfs",
   both: "bg-maze-both",
-  shortest: "bg-maze-shortest",
+  shortest: "bg-maze-shortest bfs-path-glow",
   highlight: "bg-maze-shortest cell-glow",
 };
 

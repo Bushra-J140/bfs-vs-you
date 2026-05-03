@@ -11,15 +11,35 @@ const DIRECTIONS = [
 
 export function generateMaze(rows: number, cols: number): { grid: MazeGrid; start: Position; exit: Position } {
   const minimumInterestingPath = rows + cols;
-  for (let attempt = 0; attempt < 8; attempt++) {
+  const targetPathLength = minimumInterestingPath + 6 + Math.floor(Math.random() * Math.max(12, rows + cols));
+  let bestMaze: { grid: MazeGrid; start: Position; exit: Position } | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  for (let attempt = 0; attempt < 30; attempt++) {
     const maze = buildMaze(rows, cols);
-    const solution = bfs(maze.grid, maze.start, maze.exit);
-    if (!solution || solution.path.length - 1 > minimumInterestingPath || attempt === 7) {
+    const bfsSolution = bfs(maze.grid, maze.start, maze.exit);
+    const dfsSolution = dfs(maze.grid, maze.start, maze.exit);
+    if (!bfsSolution || !dfsSolution) continue;
+
+    const bfsDistance = bfsSolution.path.length - 1;
+    const dfsDistance = dfsSolution.path.length - 1;
+    const pathGap = Math.abs(dfsDistance - bfsDistance);
+    const tooDirectPenalty = bfsDistance <= minimumInterestingPath ? (minimumInterestingPath - bfsDistance + 1) * 10 : 0;
+    const similarPathPenalty = pathGap < 6 ? (6 - pathGap) * 12 : 0;
+    const targetPenalty = Math.abs(bfsDistance - targetPathLength);
+    const score = tooDirectPenalty + similarPathPenalty + targetPenalty;
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestMaze = maze;
+    }
+
+    if (bfsDistance > minimumInterestingPath && pathGap >= 6) {
       return maze;
     }
   }
 
-  return buildMaze(rows, cols);
+  return bestMaze ?? buildMaze(rows, cols);
 }
 
 function buildMaze(rows: number, cols: number): { grid: MazeGrid; start: Position; exit: Position } {
@@ -47,9 +67,9 @@ function buildMaze(rows: number, cols: number): { grid: MazeGrid; start: Positio
 
   carve(start.row, start.col);
 
-  // Add only a few extra passages. Too many open walls create a near-straight
-  // Manhattan route, which makes the BFS shortest path always 36 on a 21x21 grid.
-  const extraPassages = Math.floor(rows * cols * 0.025);
+  // Add a randomized number of loop passages so DFS can take a visibly different
+  // route, while generateMaze rejects overly direct shortest paths.
+  const extraPassages = Math.floor(rows * cols * (0.045 + Math.random() * 0.035));
   for (let i = 0; i < extraPassages; i++) {
     const r = 1 + Math.floor(Math.random() * (rows - 2));
     const c = 1 + Math.floor(Math.random() * (cols - 2));
